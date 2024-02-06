@@ -212,14 +212,17 @@ app.get("/members", (req, res) => {
 });
 
 app.get("/signout", (req, res) => {
-  // Clear session data
-  req.session.destroy((err) => {
+  // Destroy the session in the database
+  mongoStore.destroy(req.sessionID, (err) => {
     if (err) {
-      console.error("Error destroying session:", err);
+      console.error("Error destroying session in the database:", err);
       res.status(500).send("Internal Server Error");
     } else {
-      // Redirect to the home page or login page after logout
-      res.redirect("/");
+      // Clear session data from memory
+      req.session.destroy(() => {
+        // Redirect to the home page or login page after logout
+        res.redirect("/");
+      });
     }
   });
 });
